@@ -19,7 +19,21 @@
 const OFFLINE_VERSION = 1;
 const CACHE_NAME = "offline";
 // При необходимости укажите здесь другой URL-адрес.
-const OFFLINE_URL = "offline.html";
+const OFFLINE_URL = [
+  '/',
+  'offline.html',
+  '/js/jquery-3.6.0.min.js',
+  '/js/jquery.qrcode.min.js',
+  '/js/bootstrap.bundle.min.js',
+  '/css/bootstrap.min.css',
+  '/css/bootstrap.min.css.map',
+  '/js/bootstrap.bundle.min.js.map',
+  '/img/send.png',
+  '/ico/safari-pinned-tab.svg',
+  '/ico/apple-touch-icon.png',
+  '/ico/favicon-32x32.png',
+  '/ico/favicon-16x16.png',
+];
 
 self.addEventListener("install", (event) => {
   event.waitUntil(
@@ -28,20 +42,7 @@ self.addEventListener("install", (event) => {
       // Если настроить {cache: 'reload'} в новом запросе,
       // ответ гарантированно не будет получен из кэша HTTP; т. е. он будет получен из
       // сети.
-      await cache.add(new Request(OFFLINE_URL, { cache: "reload" }));
-      await cache.addAll([
-        '/js/jquery-3.6.0.min.js',
-        '/js/jquery.qrcode.min.js',
-        '/js/bootstrap.bundle.min.js',
-        '/css/bootstrap.min.css',
-        '/css/bootstrap.min.css.map',
-        '/js/bootstrap.bundle.min.js.map',
-        '/img/send.png',
-        '/ico/safari-pinned-tab.svg',
-        '/ico/apple-touch-icon.png',
-        '/ico/favicon-32x32.png',
-        '/ico/favicon-16x16.png',
-      ]);
+      await cache.addAll(OFFLINE_URL);
     })()
   );
   // Принудительный перевод ожидающего служебного сценария в активное состояние.
@@ -64,9 +65,10 @@ self.addEventListener("activate", (event) => {
 });
 
 self.addEventListener("fetch", (event) => {
+  console.log(event.request.url);
   // Нам нужно вызвать функцию event.respondWith(), только если это запрос на переход между
   // HTML-страницами.
-  if (event.request.mode === "navigate") {
+  //if (event.request.mode === "navigate") {
     event.respondWith(
       (async () => {
         try {
@@ -87,12 +89,13 @@ self.addEventListener("fetch", (event) => {
           console.log("Не удалось получить данные; вместо этого возвращаем страницу для автономного режима.", error);
 
           const cache = await caches.open(CACHE_NAME);
-          const cachedResponse = await cache.match(OFFLINE_URL);
+          const cachedResponse = await cache.match(event.request);
+          console.log(event.request);
           return cachedResponse;
         }
       })()
     );
-  }
+  //} 
 
   // Если выражение в условии if() ложно, то этот обработчик операции получения данных не перехватит
   // запрос. Если зарегистрированы любые другие обработчики операций получения данных, они
