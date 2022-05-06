@@ -45,78 +45,12 @@
     <script src="js/bootstrap.bundle.min.js"></script>
 
     <script>
-        const OFFLINE_VERSION = 1;
-        const CACHE_NAME = "offline";
-        const OFFLINE_URL = "offline.html";
 
-        self.addEventListener("install", (event) => {
-        event.waitUntil(
-            (async () => {
-            const cache = await caches.open(CACHE_NAME);
-            console.log("open");
-            // Если настроить {cache: 'reload'} в новом запросе,
-            // ответ гарантированно не будет получен из кэша HTTP; т. е. он будет получен из
-            // сети.
-            await cache.add(new Request(OFFLINE_URL, { cache: "reload" }));
-            })()
-            );
-        // Принудительный перевод ожидающего служебного сценария в активное состояние.
-        self.skipWaiting();
-        });
-
-        self.addEventListener("activate", (event) => {
-        event.waitUntil(
-            (async () => {
-            // Включение предварительной загрузки при переходе между страницами, если эта функция поддерживается.
-            // См. сведения по ссылке https://developers.google.com/web/updates/2017/02/navigation-preload
-            if ("navigationPreload" in self.registration) {
-                await self.registration.navigationPreload.enable();
-            }
-            })()
-        );
-
-        // Сообщаем активному служебному сценарию, что необходимо немедленно получить контроль над страницей.
-        self.clients.claim();
-        });
-
-        self.addEventListener("fetch", (event) => {
-        // Нам нужно вызвать функцию event.respondWith(), только если это запрос на переход между
-        // HTML-страницами.
-        if (event.request.mode === "navigate") {
-            event.respondWith(
-            (async () => {
-                try {
-                // Прежде всего попытаемся использовать ответ предварительной загрузки при переходе между страницами, если эта функция поддерживается.
-                const preloadResponse = await event.preloadResponse;
-                if (preloadResponse) {
-                    return preloadResponse;
-                }
-
-                // Всегда сначала проверяйте сеть.
-                const networkResponse = await fetch(event.request);
-                return networkResponse;
-                } catch (error) {
-                // Событие catch появляется только при возникновении исключения, которое, вероятно,
-                // вызвано ошибкой сети.
-                // Если функция fetch() возвращает допустимый ответ HTTP с кодом ответа в
-                // диапазоне 4xx или 5xx, функция catch() НЕ будет вызвана.
-                console.log("Не удалось получить данные; вместо этого возвращаем страницу для автономного режима.", error);
-
-                const cache = await caches.open(CACHE_NAME);
-                const cachedResponse = await cache.match(OFFLINE_URL);
-                return cachedResponse;
-                }
-            })()
-            );
+        window.addEventListener("load", () => {
+        if ("serviceWorker" in navigator) {
+            navigator.serviceWorker.register("service-worker.js");
         }
-
-        // Если выражение в условии if() ложно, то этот обработчик операции получения данных не перехватит
-        // запрос. Если зарегистрированы любые другие обработчики операций получения данных, они
-        // смогут вызвать метод event.respondWith(). Если ни один обработчик операций получения данных не вызовет метод
-        // event.respondWith(), браузер обработает запрос таким образом, как если бы
-        // не были задействованы никакие служебные сценарии.
         });
-
 
         function isEmail(email) {
             var regex = /^([a-zA-Z0-9_.+-])+\@(([a-zA-Z0-9-])+\.)+([a-zA-Z0-9]{2,4})+$/;
