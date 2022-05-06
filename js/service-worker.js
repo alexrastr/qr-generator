@@ -29,6 +29,19 @@ self.addEventListener("install", (event) => {
       // ответ гарантированно не будет получен из кэша HTTP; т. е. он будет получен из
       // сети.
       await cache.add(new Request(OFFLINE_URL, { cache: "reload" }));
+      await cache.addAll([
+        '/js/jquery-3.6.0.min.js',
+        '/js/jquery.qrcode.min.js',
+        '/js/bootstrap.bundle.min.js',
+        '/css/bootstrap.min.css',
+        '/css/bootstrap.min.css.map',
+        '/js/bootstrap.bundle.min.js.map',
+        '/img/send.png',
+        '/ico/safari-pinned-tab.svg',
+        '/ico/apple-touch-icon.png',
+        '/ico/favicon-32x32.png',
+        '/ico/favicon-16x16.png',
+      ]);
     })()
   );
   // Принудительный перевод ожидающего служебного сценария в активное состояние.
