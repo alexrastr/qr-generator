@@ -13,14 +13,12 @@ func main() {
 	router.Static("/ico", "./ico")
 	router.Static("/js", "./js")
 	router.StaticFile("/manifest.mf", "./mf/manifest.mf")
+	router.StaticFile("/service-worker.js", "./js/service-worker.js")
 	router.LoadHTMLGlob("templates/*")
 	router.GET("/", func(c *gin.Context) {
 		c.HTML(http.StatusOK, "index.htm", nil)
 	})
-	router.GET("/index.html", func(c *gin.Context) {
-		c.HTML(http.StatusOK, "index.htm", nil)
-	})
-	router.GET("/offline.html", func(c *gin.Context) {
+	router.GET("offline.html", func(c *gin.Context) {
 		c.HTML(http.StatusOK, "index.htm", nil)
 	})
 	router.NoRoute(func(c *gin.Context) {
