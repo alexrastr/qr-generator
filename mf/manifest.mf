@@ -3,6 +3,7 @@ CACHE MANIFEST
 
 CACHE:
 /
+/img/safari.png
 /js/jquery-3.6.0.min.js
 /js/jquery.qrcode.min.js
 /js/bootstrap.bundle.min.js
